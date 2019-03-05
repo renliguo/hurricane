@@ -1,0 +1,5 @@
+{
+    "tags" : ["hurricane","basic", "led", "gpio"],
+    "excluded-platforms" : null,
+    "description" : "Simple app which blinks LEDs for the Hurrican board"
+}
