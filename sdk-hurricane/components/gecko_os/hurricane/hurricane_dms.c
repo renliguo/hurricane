@@ -16,9 +16,11 @@ static bool connection_up;
 static gos_handler_t pin_handler, claim_handler;
 static bool pin_request_pending;
 static gos_msgpack_context_t *sensor_msgpack = NULL;
+static bool check_dfu_result = false;
 
 
 static void send_pin_request(void *arg);
+static gos_result_t hurricane_dms_leaderboard_ota_result( void);
 
 
 
@@ -33,9 +35,61 @@ static void dms_connection_state_handler(bool is_up)
     {
         GOS_LOG("Connected to DMS");
         connection_up = true;
+        
+      /* When hurricane_dms_init() is called this flag is set indicating that we rebooted. We must
+         check is a DFU occured and if so we should send the DFU result to leaderboard  */
+         
+        if(check_dfu_result == true)    
+        { check_dfu_result = false;
+          hurricane_dms_leaderboard_ota_result();
+        }
     }
 }
 
+static gos_result_t hurricane_dms_leaderboard_ota_result( void)
+{ gos_result_t result = GOS_SUCCESS;
+  gos_dfu_status_t  dfu_status = gos_dms_get_dfu_status();
+  
+  gos_dms_clear_dfu_status();
+  
+  if(dfu_status == GOS_DFU_STATUS_SUCCESS)
+  {
+      
+    GOS_LOG("Sending OTA Success to Leaderboard");
+
+    gos_msgpack_context_t *msgpack = NULL;
+    const gos_dms_messsage_config_t config =
+    {
+            .length                 = 0,
+            .is_response            = false,
+            .response.handler       = 0,
+            .response.timeout_ms    = DMS_MSG_TIMEOUT
+    };  
+
+    // Initialize the write context
+    if(GOS_FAILED(result, gos_dms_message_write_init(&msgpack, &config)))
+    {
+        goto end;
+    }
+
+    gos_msgpack_write_dict_marker(msgpack, 3);
+    gos_msgpack_write_dict_str(msgpack, "request", "webhook");
+    gos_msgpack_write_dict_str(msgpack, "code", "LEADERBOARD");
+    gos_msgpack_write_dict_dict(msgpack, "data", 1);
+    gos_msgpack_write_dict_str(msgpack, "installed", "ok");
+
+    // Send the message to the DMS
+    if(GOS_FAILED(result, gos_dms_message_write_flush(msgpack)))
+    {
+        gos_dms_message_context_destroy(msgpack);
+    }
+
+      
+  }
+
+end:  
+  return GOS_SUCCESS;
+}
 
 static gos_result_t debug_msgpack_iterator(const gos_msgpack_object_t *key, const gos_msgpack_object_t *value, void *arg)
 {
@@ -123,8 +177,8 @@ void hurricane_dms_dfu(void)
       gos_network_restart(GOS_INTERFACE_WLAN);
 }
 
-GOS_CMD_CREATE_COMMAND(leader, claim, "leader_claimed",     "claimed",   0, 0, false);
-GOS_CMD_CREATE_COMMAND(leader, ota,   "leader_ota",       "ota",     0, 0, false);
+GOS_CMD_CREATE_COMMAND(leader, claim, "leader.claimed",     "claimed",   0, 0, false);
+GOS_CMD_CREATE_COMMAND(leader, ota,   "leader.ota",       "ota",     0, 0, false);
 
 
 GOS_DEFINE_COMMAND(leader, claim)
@@ -338,10 +392,11 @@ end:
     }
 }
 
+
 void hurricane_dms_init(void)
 {
     gos_dms_set_message_stream_state_handler(dms_connection_state_handler);
-//    gos_dms_message_register_action_listener("command", command_listener);
+    check_dfu_result = true;    //if Init was called then we need to check if DFU occured once DMS connection occurs (see dms_connection_state_handler())
 }	
 
 gos_result_t hurricane_dms_request_echo(char *echo_str, gos_handler_t handler)

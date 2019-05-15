@@ -24,9 +24,10 @@
 
 #define HURRICANE_SETUP_START_DEMO_TEXT   "Start Demo"   //this one is different from other menu items because we use it to insent the demo name
 
-#define HURRICANE_SETUP_MENU_SELECT_BUTTON    1
+#define HURRICANE_SETUP_MENU_SELECT_BUTTON    2
 #define HURRICANE_SETUP_BACK_BUTTON           1
-#define HURRICANE_SETUP_SCROLL_BUTTON         2
+#define HURRICANE_SETUP_MORE_BUTTON           2
+#define HURRICANE_SETUP_SCROLL_BUTTON         1
 #define HURRICANE_SETUP_CONFIRM_BUTTON        2
 #define HURRICANE_SETUP_NEXT_BUTTON           2
 
@@ -267,7 +268,7 @@ static void hurricane_setup_draw_menu(hurricaneSetupMenu_t *menu)
     hurricane_draw_menu_line(buffer, i, (i == menu->current_selection));
   }
   
-  hurricane_setup_draw_navigation("Select", "Scroll");
+  hurricane_setup_draw_navigation("Scroll", "Select");
   
   GUI_MULTIBUF_End();
 
@@ -790,7 +791,7 @@ void hurricane_setup_process_button(uint32_t button)
     case HURRICANE_SETUP_STATE_PLATFORM_DETAILS:
     case HURRICANE_SETUP_STATE_SENSOR_ID:
     case HURRICANE_SETUP_STATE_SENSOR_DATA:
-      if(button == HURRICANE_SETUP_SCROLL_BUTTON)
+      if(button == HURRICANE_SETUP_MORE_BUTTON)
       { if(more_available == true)   //only scroll if there is more lines available
           sysinfo_scroll_index++;
         next_setup_state = setup_state;

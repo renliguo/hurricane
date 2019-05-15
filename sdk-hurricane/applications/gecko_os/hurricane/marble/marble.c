@@ -41,6 +41,13 @@ void marble_init(void)
     get_maze_starting_point(&start_x, &start_y);
     marble_pos_x = start_x;
     marble_pos_y = start_y;
+    
+    detection_flags = 0;
+    marble_vel_x = 0;
+    marble_vel_y = 0;
+    marble_accel_x = 0;
+    marble_accel_y = 0;
+    dt = 0.1;
 
     get_maze_end_point(&end_x, &end_y);
 

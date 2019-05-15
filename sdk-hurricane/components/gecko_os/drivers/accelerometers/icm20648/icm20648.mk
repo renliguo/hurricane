@@ -1,6 +1,9 @@
 NAME := drivers_accelerometer_icm20648
 
-$(NAME)_SOURCES := accelerometer_sensor_api.c \
-                   icm20648.c
-                   
 $(NAME)_GLOBAL_INCLUDES := .
+
+$(NAME)_SUPPORTED_FEATURES := SENSOR_TYPE_ACCELEROMETER
+
+$(NAME)_SOURCES := icm20648.c
+
+$(NAME)_SENSOR_TYPE_ACCELEROMETER_SOURCES := accelerometer_sensor_api.c

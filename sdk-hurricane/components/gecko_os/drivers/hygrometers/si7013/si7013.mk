@@ -2,6 +2,11 @@ NAME := drivers_humidity_si7013
 
 
 
-$(NAME)_SOURCES := si7013.c hygrometer_sensor_api.c
-
 $(NAME)_GLOBAL_INCLUDES := .
+
+$(NAME)_SUPPORTED_FEATURES := SENSOR_TYPE_HYGROMETER
+
+
+$(NAME)_SOURCES := si7013.c
+
+$(NAME)_SENSOR_TYPE_HYGROMETER_SOURCES := hygrometer_sensor_api.c

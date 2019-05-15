@@ -85,6 +85,7 @@ static void start_demo_handler(void *arg)
     gos_button_init(HURRICANE_BUTTON1, &button_config, (void*)1);
     gos_button_init(HURRICANE_BUTTON2, &button_config, (void*)2);
 
+    game_over = false;
     marble_init();
 
     gos_event_register_periodic(game_handler, NULL, 10, GOS_EVENT_FLAG_NONE);
@@ -103,6 +104,7 @@ static void button_pressed_event_handler(void *arg)
     if(gos_button_is_active(HURRICANE_BUTTON1) && gos_button_is_active(HURRICANE_BUTTON2))
     { gos_event_unregister(game_handler, NULL);
       marble_init();
+      game_over = false;
       gos_event_register_periodic(game_handler, NULL, 10, GOS_EVENT_FLAG_NONE);
     }
 }
@@ -119,6 +121,7 @@ static void button_clicked_event_handler(void *arg)
   {
       gos_event_unregister(game_handler, NULL);
       marble_init();
+      game_over = false;
       gos_event_register_periodic(game_handler, NULL, 10, GOS_EVENT_FLAG_NONE);
   }  
 }

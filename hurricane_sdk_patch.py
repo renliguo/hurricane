@@ -43,7 +43,7 @@ if result == True :
 
   if sdk_confirm == True :
     
-    print("Removing old hurricane folders from the SDK if exsiting")
+    print("Removing old hurricane folders from the SDK if existing")
     applications_hurricane_path = os.path.join(sdk_dir,"applications","hurricane")
     if(os.path.exists(applications_hurricane_path)) :
       distutils.dir_util.remove_tree(applications_hurricane_path)
